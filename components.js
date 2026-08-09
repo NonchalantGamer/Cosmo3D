@@ -174,7 +174,7 @@ function renderHeader() {
         </span>
         ${user.name || 'Account'}
       </a>`
-    : `<a class="btn btn-ghost" href="login.html">Login</a><a class="btn btn-primary" href="signup.html">Sign Up</a>`;
+    : `<a class="btn btn-ghost" href="login.html">Log in</a><a class="btn btn-primary" href="signup.html">Sign up</a>`;
 
   host.innerHTML = `
     <header class="site-header">
