@@ -125,6 +125,15 @@
     <script src="script.js"></script>
 
     <script>
+      // Immediate protection check if auth state is available synchronously before DOM load finishes
+      if (typeof window !== 'undefined' && window.getAuthReady) {
+        window.getAuthReady().then(() => {
+          if (!window.isAuthenticated || !window.isAuthenticated()) {
+            window.location.replace('login.html');
+          }
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', async () => {
         const avatarPreview = document.getElementById('profile-avatar-preview');
         const avatarInput = document.getElementById('profile-avatar-input');

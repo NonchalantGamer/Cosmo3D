@@ -57,7 +57,7 @@ async function protectCurrentRoute() {
   if (window.getAuthReady) {
     await window.getAuthReady();
   } else {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 
   if (!isCurrentRouteProtected()) {
@@ -66,7 +66,7 @@ async function protectCurrentRoute() {
 
   if (!window.isAuthenticated || !window.isAuthenticated()) {
     console.warn(`Access denied to ${getCurrentPage()}: User not authenticated`);
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
   }
 }
 
