@@ -31,12 +31,32 @@ function buildCurrentUser(user, fallback = {}) {
   };
 }
 
+async function getSupabaseInstance() {
+  if (typeof initSupabase === 'function') {
+    return await initSupabase();
+  }
+  if (typeof window !== 'undefined' && window.initSupabase) {
+    return await window.initSupabase();
+  }
+  if (typeof require === 'function') {
+    try {
+      const config = require('./config.js');
+      if (config && config.initSupabase) {
+        return await config.initSupabase();
+      }
+    } catch {
+      // Ignore Node require error
+    }
+  }
+  return null;
+}
+
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
 
 async function initAuth() {
-  const supabase = await initSupabase();
+  const supabase = await getSupabaseInstance();
   
   if (!supabase) {
     console.error('Supabase not initialized');
@@ -84,7 +104,7 @@ async function initAuth() {
 }
 
 async function restoreSession() {
-  const supabase = await initSupabase();
+  const supabase = await getSupabaseInstance();
   if (!supabase) return;
 
   try {
@@ -195,7 +215,7 @@ function validateLoginData({ email, password }) {
 async function loginWithGoogle(options = {}) {
   let supabase;
   try {
-    supabase = await initSupabase();
+    supabase = await getSupabaseInstance();
   } catch (err) {
     console.error('Failed to initialize Supabase:', err);
   }
@@ -232,7 +252,7 @@ async function loginWithGoogle(options = {}) {
   }
 }
 async function signupUser({ name, email, password, passwordConfirm }) {
-  const supabase = await initSupabase();
+  const supabase = await getSupabaseInstance();
   if (!supabase) return { success: false, error: 'Auth not initialized' };
 
   // Validate input
@@ -289,7 +309,7 @@ async function signupUser({ name, email, password, passwordConfirm }) {
  * @returns {Object} - { success, user, error }
  */
 async function loginUser(email, password) {
-  const supabase = await initSupabase();
+  const supabase = await getSupabaseInstance();
   if (!supabase) return { success: false, error: 'Auth not initialized' };
 
   // Validate input
@@ -332,7 +352,7 @@ async function loginUser(email, password) {
  * @returns {Object} - { success, error }
  */
 async function logoutUser() {
-  const supabase = await initSupabase();
+  const supabase = await getSupabaseInstance();
   if (!supabase) return { success: false, error: 'Auth not initialized' };
 
   try {
@@ -359,7 +379,7 @@ async function logoutUser() {
  * @returns {Object} - { success, user, error, message }
  */
 async function updateProfile({ name, email, bio, avatarUrl }) {
-  const supabase = await initSupabase();
+  const supabase = await getSupabaseInstance();
   if (!supabase) return { success: false, error: 'Auth not initialized' };
 
   try {
