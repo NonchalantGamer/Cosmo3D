@@ -83,17 +83,6 @@ async function initAuth() {
       localStorage.setItem(AUTH_STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
       notifyListeners({ type: 'LOGIN', user: currentUser });
     } else {
-      const stored = localStorage.getItem(AUTH_STORAGE_KEYS.currentUser);
-      if (stored && event !== 'SIGNED_OUT') {
-        try {
-          currentUser = JSON.parse(stored);
-          notifyListeners({ type: 'SESSION_RESTORED', user: currentUser });
-          return;
-        } catch {
-          // Fall through and clear invalid stored data.
-        }
-      }
-
       currentUser = null;
       localStorage.removeItem(AUTH_STORAGE_KEYS.currentUser);
       notifyListeners({ type: 'LOGOUT' });
@@ -126,15 +115,9 @@ async function restoreSession() {
       localStorage.setItem(AUTH_STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
       notifyListeners({ type: 'SESSION_RESTORED', user: currentUser });
     } else {
-      // Try to restore from localStorage (fallback)
-      const stored = localStorage.getItem(AUTH_STORAGE_KEYS.currentUser);
-      if (stored) {
-        try {
-          currentUser = JSON.parse(stored);
-        } catch {
-          currentUser = null;
-        }
-      }
+      currentUser = null;
+      localStorage.removeItem(AUTH_STORAGE_KEYS.currentUser);
+      notifyListeners({ type: 'LOGOUT' });
     }
   } catch (error) {
     console.error('Error restoring session:', error);
