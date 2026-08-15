@@ -56,6 +56,18 @@ async function getSupabaseInstance() {
 // ============================================================================
 
 async function initAuth() {
+  // Load cached user from localStorage immediately
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem(AUTH_STORAGE_KEYS.currentUser);
+    if (stored) {
+      try {
+        currentUser = JSON.parse(stored);
+      } catch {
+        currentUser = null;
+      }
+    }
+  }
+
   const supabase = await getSupabaseInstance();
   
   if (!supabase) {
@@ -460,6 +472,18 @@ function clearAuthData() {
 // ============================================================================
 
 if (typeof window !== 'undefined') {
+  // Synchronously seed currentUser from localStorage on script parse
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem(AUTH_STORAGE_KEYS.currentUser);
+    if (stored) {
+      try {
+        currentUser = JSON.parse(stored);
+      } catch {
+        currentUser = null;
+      }
+    }
+  }
+
   window.signupUser = signupUser;
   window.loginUser = loginUser;
   window.logoutUser = logoutUser;

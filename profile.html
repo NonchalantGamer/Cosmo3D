@@ -135,18 +135,6 @@
       }
 
       document.addEventListener('DOMContentLoaded', async () => {
-        // Double check auth status before rendering form content
-        if (window.getAuthReady) {
-          await window.getAuthReady();
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 300));
-        }
-
-        const user = window.getCurrentUser && window.getCurrentUser();
-        if (!user || !window.isAuthenticated || !window.isAuthenticated()) {
-          window.location.replace('login.html');
-          return;
-        }
         const avatarPreview = document.getElementById('profile-avatar-preview');
         const avatarInput = document.getElementById('profile-avatar-input');
         const changePhotoButton = document.getElementById('change-photo-button');
@@ -284,6 +272,25 @@
           emailReadonlyEl.textContent = currentProfile.email || '—';
           renderAvatar(currentProfile.avatarUrl, currentProfile.name);
         };
+
+        // Hydrate UI immediately if currentUser is synchronously available in memory or localStorage
+        let initialUser = window.getCurrentUser && window.getCurrentUser();
+        if (initialUser) {
+          fillForm(initialUser);
+        }
+
+        // Wait for auth initialization to verify session
+        if (window.getAuthReady) {
+          await window.getAuthReady();
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+
+        const user = window.getCurrentUser && window.getCurrentUser();
+        if (!user || !window.isAuthenticated || !window.isAuthenticated()) {
+          window.location.replace('login.html');
+          return;
+        }
 
         fillForm(user);
 
