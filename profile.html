@@ -361,11 +361,19 @@
 
             if (!name) {
               setMessage('Please enter your name.', '#ff9c9c');
+              if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save changes';
+              }
               return;
             }
 
             if (!email) {
               setMessage('Please enter your email address.', '#ff9c9c');
+              if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save changes';
+              }
               return;
             }
 
