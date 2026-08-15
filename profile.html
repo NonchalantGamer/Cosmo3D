@@ -279,21 +279,7 @@
           fillForm(initialUser);
         }
 
-        // Wait for auth initialization to verify session
-        if (window.getAuthReady) {
-          await window.getAuthReady();
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 300));
-        }
-
-        const user = window.getCurrentUser && window.getCurrentUser();
-        if (!user || !window.isAuthenticated || !window.isAuthenticated()) {
-          window.location.replace('login.html');
-          return;
-        }
-
-        fillForm(user);
-
+        // Setup button listeners immediately so buttons are clickable right away
         changePhotoButton?.addEventListener('click', () => avatarInput?.click());
 
         avatarInput?.addEventListener('change', () => {
@@ -318,7 +304,7 @@
               pendingAvatarFile = file;
               avatarMarkedForRemoval = false;
               selectedAvatarUrl = previewUrl;
-              renderAvatar(selectedAvatarUrl, nameInput.value || currentProfile.name);
+              renderAvatar(selectedAvatarUrl, nameInput.value || currentProfile?.name);
               setMessage('Avatar selected. Save changes to upload it.', 'var(--accent)');
             })
             .catch((error) => {
@@ -334,7 +320,7 @@
           avatarMarkedForRemoval = true;
           selectedAvatarUrl = '';
           if (avatarInput) avatarInput.value = '';
-          renderAvatar('', nameInput.value || currentProfile.name);
+          renderAvatar('', nameInput.value || currentProfile?.name);
           setMessage('Avatar removed. Save changes to apply.', 'var(--accent)');
         });
 
@@ -377,11 +363,14 @@
               return;
             }
 
+            const activeUser = window.getCurrentUser && window.getCurrentUser();
+            const userId = activeUser?.id || user?.id || 'guest';
+
             if (avatarMarkedForRemoval) {
               avatarUrlToSave = '';
             } else if (pendingAvatarFile) {
               setMessage('Uploading avatar...');
-              avatarUrlToSave = await uploadAvatarImage(pendingAvatarFile, user.id);
+              avatarUrlToSave = await uploadAvatarImage(pendingAvatarFile, userId);
             }
 
             const result = await window.updateProfile({
@@ -430,6 +419,21 @@
             logoutButton.textContent = 'Log out';
           }
         });
+
+        // Wait for auth initialization to verify session
+        if (window.getAuthReady) {
+          await window.getAuthReady();
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+
+        const user = window.getCurrentUser && window.getCurrentUser();
+        if (!user || !window.isAuthenticated || !window.isAuthenticated()) {
+          window.location.replace('login.html');
+          return;
+        }
+
+        fillForm(user);
 
         if (window.onAuthChange) {
           window.onAuthChange((event) => {
